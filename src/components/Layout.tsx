@@ -12,7 +12,10 @@ export default function Layout() {
           <h1>CENTRAL WEBSITE</h1>
           <p className="tagline">One domain. Six knowledge verticals.</p>
         </Link>
-        <SearchBar />
+        <div className="masthead-right">
+          <SearchBar />
+          <Link to="/admin" className="admin-link">Admin</Link>
+        </div>
       </header>
 
       <nav className="vertical-nav" aria-label="Verticals">
