@@ -77,7 +77,7 @@ export async function listRelatedEntries(entryId: number): Promise<Entry[]> {
     .eq('parent_entry_id', entryId)
     .order('id', { ascending: false })
   if (error) throw error
-  return (data ?? []).map((row) => (row as { child: Entry }).child)
+  return ((data ?? []) as unknown as { child: Entry }[]).map((row) => row.child)
 }
 
 export async function createEntry(input: {
