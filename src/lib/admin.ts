@@ -18,8 +18,8 @@ export interface VerticalStat {
 
 export interface TrafficSummary {
   today: number
-  last7Days: number
-  allTime: number
+  last7days: number
+  alltime: number
 }
 
 export interface VerticalTrafficRow {
