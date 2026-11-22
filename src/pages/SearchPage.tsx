@@ -60,9 +60,6 @@ export default function SearchPage() {
     }
   }
 
-  const vName = (vid: number) => verticals.find((v) => v.id === vid)?.name ?? ''
-  const vSlug = (vid: number) => verticals.find((v) => v.id === vid)?.slug ?? ''
-
   return (
     <div>
       <div className="search-page-head">
