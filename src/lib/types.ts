@@ -24,6 +24,7 @@ export interface Category {
 export interface Entry {
   id: number
   vertical_id: number
+  category_id: number | null
   slug: string
   title: string
   summary: string | null
@@ -62,4 +63,14 @@ export interface Page<T> {
   items: T[]
   nextCursor: number | null
   hasMore: boolean
+}
+
+export interface SearchHit {
+  id: number
+  vertical_id: number
+  slug: string
+  title: string
+  summary: string | null
+  status: string
+  published_at: string | null
 }
