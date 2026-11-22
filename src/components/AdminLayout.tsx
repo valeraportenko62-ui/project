@@ -1,6 +1,9 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { useTheme } from '../hooks/useTheme'
+import { MoonIcon, SunIcon } from './Icons'
 
 export default function AdminLayout() {
+  const { theme, toggle } = useTheme()
   return (
     <div className="admin-shell">
       <header className="admin-header">
@@ -26,9 +29,19 @@ export default function AdminLayout() {
               Batch Generator
             </NavLink>
           </nav>
-          <NavLink to="/" className="admin-view-site">
-            View site &rarr;
-          </NavLink>
+          <div className="admin-header-actions">
+            <button
+              className="theme-toggle"
+              onClick={toggle}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? <MoonIcon size={18} /> : <SunIcon size={18} />}
+            </button>
+            <NavLink to="/" className="admin-view-site">
+              View site &rarr;
+            </NavLink>
+          </div>
         </div>
       </header>
 

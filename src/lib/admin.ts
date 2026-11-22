@@ -16,6 +16,44 @@ export interface VerticalStat {
   ingestion_failed: number
 }
 
+export interface TrafficSummary {
+  today: number
+  last7Days: number
+  allTime: number
+}
+
+export interface VerticalTrafficRow {
+  vertical_id: number
+  slug: string
+  name: string
+  views: number
+}
+
+export interface TopPageRow {
+  path: string
+  views: number
+  entry_title: string | null
+  vertical_slug: string | null
+}
+
+export async function getTrafficSummary(): Promise<TrafficSummary> {
+  const { data, error } = await supabase.rpc('get_traffic_summary')
+  if (error) throw error
+  return data as TrafficSummary
+}
+
+export async function getTrafficByVertical(): Promise<VerticalTrafficRow[]> {
+  const { data, error } = await supabase.rpc('get_traffic_by_vertical')
+  if (error) throw error
+  return (data ?? []) as VerticalTrafficRow[]
+}
+
+export async function getTopPages(): Promise<TopPageRow[]> {
+  const { data, error } = await supabase.rpc('get_top_pages')
+  if (error) throw error
+  return (data ?? []) as TopPageRow[]
+}
+
 export interface AdminStats {
   total_entries: number
   total_relations: number

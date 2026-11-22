@@ -1,17 +1,45 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getAdminStats, getScaleReadiness, parseTargetVolume, formatNumber } from '../../lib/admin'
-import type { AdminStats, VerticalStat } from '../../lib/admin'
+import {
+  getAdminStats,
+  getScaleReadiness,
+  parseTargetVolume,
+  formatNumber,
+  getTrafficSummary,
+  getTrafficByVertical,
+  getTopPages,
+} from '../../lib/admin'
+import type {
+  AdminStats,
+  VerticalStat,
+  TrafficSummary,
+  VerticalTrafficRow,
+  TopPageRow,
+} from '../../lib/admin'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null)
+  const [traffic, setTraffic] = useState<TrafficSummary | null>(null)
+  const [verticalTraffic, setVerticalTraffic] = useState<VerticalTrafficRow[]>([])
+  const [topPages, setTopPages] = useState<TopPageRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    getAdminStats()
-      .then((s) => !cancelled && setStats(s))
+    Promise.all([
+      getAdminStats(),
+      getTrafficSummary(),
+      getTrafficByVertical(),
+      getTopPages(),
+    ])
+      .then(([s, t, tv, tp]) => {
+        if (cancelled) return
+        setStats(s)
+        setTraffic(t)
+        setVerticalTraffic(tv)
+        setTopPages(tp)
+      })
       .catch((err: Error) => !cancelled && setError(err.message))
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
@@ -20,8 +48,18 @@ export default function AdminDashboard() {
   function refresh() {
     setLoading(true)
     setError(null)
-    getAdminStats()
-      .then(setStats)
+    Promise.all([
+      getAdminStats(),
+      getTrafficSummary(),
+      getTrafficByVertical(),
+      getTopPages(),
+    ])
+      .then(([s, t, tv, tp]) => {
+        setStats(s)
+        setTraffic(t)
+        setVerticalTraffic(tv)
+        setTopPages(tp)
+      })
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false))
   }
@@ -143,6 +181,96 @@ export default function AdminDashboard() {
                   </tr>
                 )
               })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Traffic & page views analytics */}
+      <div className="admin-section">
+        <div className="admin-section-head">
+          <h2>Traffic &amp; Page Views</h2>
+          <span className="admin-subtitle">Aggregated daily page views across the public site.</span>
+        </div>
+
+        <div className="admin-stat-cards">
+          <div className="admin-stat-card">
+            <span className="admin-stat-label">Today</span>
+            <span className="admin-stat-value">{formatNumber(traffic?.today ?? 0)}</span>
+            <span className="admin-stat-sub">views since midnight</span>
+          </div>
+          <div className="admin-stat-card">
+            <span className="admin-stat-label">Last 7 Days</span>
+            <span className="admin-stat-value">{formatNumber(traffic?.last7days ?? 0)}</span>
+            <span className="admin-stat-sub">rolling week</span>
+          </div>
+          <div className="admin-stat-card admin-stat-card-accent">
+            <span className="admin-stat-label">All Time</span>
+            <span className="admin-stat-value">{formatNumber(traffic?.alltime ?? 0)}</span>
+            <span className="admin-stat-sub">since tracking began</span>
+          </div>
+        </div>
+
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Vertical</th>
+                <th className="ta-right">Page Views</th>
+                <th>Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {verticalTraffic.map((v) => {
+                const total = verticalTraffic.reduce((sum, row) => sum + Number(row.views), 0)
+                const pct = total > 0 ? (Number(v.views) / total) * 100 : 0
+                return (
+                  <tr key={v.vertical_id}>
+                    <td>
+                      <Link to={`/${v.slug}`} className="admin-vertical-link">
+                        <span className={`admin-vertical-dot dot-${v.slug}`} />
+                        {v.name}
+                      </Link>
+                    </td>
+                    <td className="ta-right admin-num">{formatNumber(Number(v.views))}</td>
+                    <td>
+                      <div className="admin-progress">
+                        <div className="admin-progress-bar">
+                          <div className="admin-progress-fill fill-production" style={{ width: `${Math.max(pct, 0.5)}%` }} />
+                        </div>
+                        <span className="admin-progress-pct">{pct.toFixed(1)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="admin-table-wrap" style={{ marginTop: 16 }}>
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Top 10 Most Visited Pages</th>
+                <th className="ta-right">Views</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topPages.length === 0 && (
+                <tr><td className="admin-muted">No page views recorded yet.</td><td className="ta-right admin-num">0</td></tr>
+              )}
+              {topPages.map((p) => (
+                <tr key={p.path}>
+                  <td>
+                    <span className="admin-top-page-path">
+                      {p.entry_title ?? p.path}
+                      {p.entry_title && <span className="admin-top-page-sub">{p.path}</span>}
+                    </span>
+                  </td>
+                  <td className="ta-right admin-num">{formatNumber(Number(p.views))}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

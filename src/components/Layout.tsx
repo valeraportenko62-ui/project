@@ -1,4 +1,6 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import SearchBar from './SearchBar'
 import { useVerticals } from '../hooks/useVerticals'
 import { useTheme } from '../hooks/useTheme'
@@ -7,6 +9,14 @@ import { MoonIcon, SunIcon, SettingsIcon, HomeIcon } from './Icons'
 export default function Layout() {
   const { verticals } = useVerticals()
   const { theme, toggle } = useTheme()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/admin')) return
+    supabase
+      .rpc('track_page_view', { p_path: location.pathname })
+      .then(() => undefined, () => undefined)
+  }, [location.pathname])
 
   return (
     <div className="shell">

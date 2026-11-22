@@ -1479,6 +1479,40 @@ a:hover > .entry-card {
 .admin-entry-title { font-weight: 500; }
 .admin-entry-title:hover { color: var(--admin-primary); }
 
+/* --- Admin: dark theme token overrides (slate/indigo) --- */
+[data-theme="dark"] {
+  --admin-bg: #0f172a;
+  --admin-surface: #1e293b;
+  --admin-ink: #f1f5f9;
+  --admin-muted: #94a3b8;
+  --admin-line: #334155;
+  --admin-primary: #6366f1;
+  --admin-primary-hover: #818cf8;
+  --admin-primary-soft: rgba(99, 102, 241, 0.16);
+  --admin-danger: #f87171;
+  --admin-danger-soft: rgba(248, 113, 113, 0.12);
+  --admin-warn: #fbbf24;
+  --admin-warn-soft: rgba(251, 191, 36, 0.12);
+  --admin-success: #34d399;
+  --admin-success-soft: rgba(52, 211, 153, 0.12);
+  --admin-accent: #818cf8;
+  --admin-accent-soft: rgba(129, 140, 248, 0.15);
+}
+
+[data-theme="dark"] .admin-table td { border-bottom-color: #1e293b; }
+[data-theme="dark"] .admin-table tbody tr:hover { background: #26334a; }
+[data-theme="dark"] .admin-readiness-banner { background: linear-gradient(135deg, rgba(52, 211, 153, 0.08) 0%, rgba(52, 211, 153, 0.05) 100%); border-color: rgba(52, 211, 153, 0.25); }
+[data-theme="dark"] .readiness-growth { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+[data-theme="dark"] .status-tag-draft { background: #334155; color: #cbd5e1; }
+[data-theme="dark"] .status-tag-published { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+[data-theme="dark"] .status-tag-archived { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+[data-theme="dark"] .admin-batch-result { background: rgba(52, 211, 153, 0.08); border-color: rgba(52, 211, 153, 0.25); color: #34d399; }
+[data-theme="dark"] .admin-log { background: #0b1220; }
+
+/* --- Admin: traffic analytics --- */
+.admin-top-page-path { display: flex; flex-direction: column; gap: 0.1rem; font-weight: 500; }
+.admin-top-page-sub { font-family: var(--font-mono); font-size: 0.76rem; color: var(--admin-muted); font-weight: 400; }
+
 @media (max-width: 800px) {
   .admin-manager-grid { grid-template-columns: 1fr; }
   .admin-batch-grid { grid-template-columns: 1fr; }
