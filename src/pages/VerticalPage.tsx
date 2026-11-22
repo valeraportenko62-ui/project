@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getVerticalBySlug, listCategories, listEntries } from '../lib/data'
 import type { Category, Entry, Vertical } from '../lib/types'
-import EntryCard from '../components/EntryCard'
+import EntryCard, { EntryCardSkeleton } from '../components/EntryCard'
+import { VerticalIcon, ArrowDownIcon } from '../components/Icons'
 import NotFoundPage from './NotFoundPage'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 12
 
 export default function VerticalPage() {
   const { verticalSlug } = useParams<{ verticalSlug: string }>()
@@ -16,6 +17,7 @@ export default function VerticalPage() {
   const [cursor, setCursor] = useState<number | null>(null)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -58,14 +60,12 @@ export default function VerticalPage() {
           setLoading(false)
         }
       })
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [vertical, categoryId])
 
   async function loadMore() {
     if (!vertical || cursor == null) return
-    setLoading(true)
+    setLoadingMore(true)
     try {
       const page = await listEntries({
         verticalId: vertical.id,
@@ -79,7 +79,7 @@ export default function VerticalPage() {
     } catch (err) {
       setError((err as Error).message)
     } finally {
-      setLoading(false)
+      setLoadingMore(false)
     }
   }
 
@@ -87,11 +87,21 @@ export default function VerticalPage() {
   if (error) return <div className="status error">Something went wrong: {error}</div>
   if (!vertical) return <div className="status">Loading…</div>
 
+  const activeCat = categories.find((c) => c.id === categoryId)
+
   return (
     <div>
-      <div className="section-head">
-        <h2>{vertical.name}</h2>
-        <p>{vertical.description}</p>
+      <div className={`vertical-hero vp-${vertical.slug}`}>
+        <div className="vertical-hero-content">
+          <div className="vertical-hero-icon">
+            <VerticalIcon slug={vertical.slug} size={28} />
+          </div>
+          <div>
+            <h1>{vertical.name}</h1>
+            <p>{vertical.description}</p>
+          </div>
+        </div>
+        <span className="vertical-hero-target">{vertical.target_volume} target</span>
       </div>
 
       <div className="filter-row" role="group" aria-label="Filter by category">
@@ -112,10 +122,15 @@ export default function VerticalPage() {
         ))}
       </div>
 
-      {loading && entries.length === 0 ? (
-        <div className="status">Loading…</div>
+      {loading ? (
+        <div className="entry-grid">
+          {Array.from({ length: 6 }).map((_, i) => <EntryCardSkeleton key={i} />)}
+        </div>
       ) : entries.length === 0 ? (
-        <div className="status">No entries in this view yet.</div>
+        <div className="empty-state">
+          <h3>No entries in this view yet.</h3>
+          <p>{activeCat ? `The "${activeCat.name}" category has no published entries.` : 'This vertical has no published entries yet.'}</p>
+        </div>
       ) : (
         <div className="entry-list">
           {entries.map((e) => {
@@ -128,9 +143,9 @@ export default function VerticalPage() {
                     ? `/${vertical.slug}/${cat.slug}/${e.slug}`
                     : `/${vertical.slug}/_/latest/${e.slug}`
                 }
-                className="entry-list-item"
+                className="entry-list-link"
               >
-                <EntryCard entry={e} />
+                <EntryCard entry={e} category={cat?.name} />
               </Link>
             )
           })}
@@ -138,8 +153,12 @@ export default function VerticalPage() {
       )}
 
       {hasMore && (
-        <button className="load-more" onClick={loadMore} disabled={loading}>
-          {loading ? 'Loading…' : 'Load more'}
+        <button className="load-more" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? (
+            <><span className="spinner" /> Loading…</>
+          ) : (
+            <><ArrowDownIcon size={16} /> Load more entries</>
+          )}
         </button>
       )}
     </div>

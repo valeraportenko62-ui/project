@@ -3,6 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { searchEntries } from '../lib/data'
 import { useVerticals } from '../hooks/useVerticals'
 import type { SearchHit } from '../lib/types'
+import { SearchIcon, ArrowDownIcon } from '../components/Icons'
+
+const PAGE_SIZE = 20
 
 export default function SearchPage() {
   const [params] = useSearchParams()
@@ -13,6 +16,7 @@ export default function SearchPage() {
   const [cursor, setCursor] = useState<number | null>(null)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -24,7 +28,7 @@ export default function SearchPage() {
       setLoading(false)
       return
     }
-    searchEntries({ query: q, verticalId: verticalId ?? undefined, limit: 20 })
+    searchEntries({ query: q, verticalId: verticalId ?? undefined, limit: PAGE_SIZE })
       .then((page) => {
         if (cancelled) return
         setHits(page.items)
@@ -38,35 +42,34 @@ export default function SearchPage() {
           setLoading(false)
         }
       })
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [q, verticalId])
 
   async function loadMore() {
     if (!q || cursor == null) return
-    setLoading(true)
+    setLoadingMore(true)
     try {
-      const page = await searchEntries({ query: q, verticalId: verticalId ?? undefined, cursor, limit: 20 })
+      const page = await searchEntries({ query: q, verticalId: verticalId ?? undefined, cursor, limit: PAGE_SIZE })
       setHits((prev) => [...prev, ...page.items])
       setCursor(page.nextCursor)
       setHasMore(page.hasMore)
     } catch (err) {
       setError((err as Error).message)
     } finally {
-      setLoading(false)
+      setLoadingMore(false)
     }
   }
 
+  const vName = (vid: number) => verticals.find((v) => v.id === vid)?.name ?? ''
+  const vSlug = (vid: number) => verticals.find((v) => v.id === vid)?.slug ?? ''
+
   return (
     <div>
-      <div className="section-head">
-        <h2>Search results</h2>
+      <div className="search-page-head">
+        <h1>Search results</h1>
         <p>
           {q ? (
-            <>
-              Showing results for "<strong>{q}</strong>"
-            </>
+            <>Showing results for <strong>"{q}"</strong></>
           ) : (
             'Type a query in the search bar above.'
           )}
@@ -86,6 +89,7 @@ export default function SearchPage() {
             className={verticalId === v.id ? 'filter-chip active' : 'filter-chip'}
             onClick={() => setVerticalId(v.id)}
           >
+            <span className={`vp-dot vp-${v.slug}`} />
             {v.name}
           </button>
         ))}
@@ -93,10 +97,18 @@ export default function SearchPage() {
 
       {error && <div className="status error">Something went wrong: {error}</div>}
 
-      {!error && loading && hits.length === 0 && <div className="status">Searching…</div>}
+      {!error && loading && hits.length === 0 && (
+        <div className="empty-state">
+          <SearchIcon size={32} className="search-pulse" />
+          <h3>Searching…</h3>
+        </div>
+      )}
 
       {!error && !loading && q && hits.length === 0 && (
-        <div className="status">No results for "{q}". Try a different wording.</div>
+        <div className="empty-state">
+          <h3>No results for "{q}"</h3>
+          <p>Try a different wording or browse <Link to="/">verticals</Link> directly.</p>
+        </div>
       )}
 
       <div className="entry-list">
@@ -106,12 +118,16 @@ export default function SearchPage() {
             <Link
               key={h.id}
               to={v ? `/${v.slug}/_/${h.slug}` : '/'}
-              className="entry-list-item"
+              className="entry-list-link"
             >
               <article className="entry-card">
-                {v && <span className="entry-vertical">{v.name}</span>}
+                {v && (
+                  <div className="entry-card-tags">
+                    <span className={`entry-vert-tag vp-${v.slug}`}>{v.name}</span>
+                  </div>
+                )}
                 <h3>{h.title}</h3>
-                <p>{h.summary}</p>
+                {h.summary && <p>{h.summary}</p>}
               </article>
             </Link>
           )
@@ -119,8 +135,12 @@ export default function SearchPage() {
       </div>
 
       {hasMore && (
-        <button className="load-more" onClick={loadMore} disabled={loading}>
-          {loading ? 'Loading…' : 'Load more'}
+        <button className="load-more" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? (
+            <><span className="spinner" /> Loading…</>
+          ) : (
+            <><ArrowDownIcon size={16} /> Load more results</>
+          )}
         </button>
       )}
     </div>

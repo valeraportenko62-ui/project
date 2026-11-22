@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getEntry, getVerticalBySlug, listCategories, listRelatedEntries } from '../lib/data'
 import type { Category, Entry, Vertical } from '../lib/types'
+import { ExternalLinkIcon, ClockIcon, TagIcon, ChevronRightIcon } from '../components/Icons'
 import NotFoundPage from './NotFoundPage'
 
 export default function EntryPage() {
@@ -53,34 +54,57 @@ export default function EntryPage() {
         }
       }
     })()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [verticalSlug, categorySlug, slugOrId])
 
   if (notFound) return <NotFoundPage />
   if (error) return <div className="status error">Something went wrong: {error}</div>
   if (loading || !entry || !vertical) return <div className="status">Loading…</div>
 
+  const date = new Date(entry.published_at ?? entry.created_at).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+
   return (
-    <article className={`entry-detail template-${vertical.slug}`}>
+    <article className={`entry-detail vp-${vertical.slug}`}>
       <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/">Home</Link> / <Link to={`/${vertical.slug}`}>{vertical.name}</Link>
-        {category && <span> / {category.name}</span>}
+        <Link to="/">Home</Link>
+        <ChevronRightIcon size={13} />
+        <Link to={`/${vertical.slug}`}>{vertical.name}</Link>
+        {category && (
+          <>
+            <ChevronRightIcon size={13} />
+            <span>{category.name}</span>
+          </>
+        )}
       </nav>
 
       <header className="entry-header">
-        <span className={`entry-badge badge-${vertical.slug}`}>{vertical.name}</span>
-        {category && <span className="entry-badge">{category.name}</span>}
-        <h2>{entry.title}</h2>
+        <div className="entry-header-tags">
+          <span className={`entry-vert-tag vp-${vertical.slug}`}>{vertical.name}</span>
+          {category && (
+            <span className="entry-cat-tag">
+              <TagIcon size={11} />
+              {category.name}
+            </span>
+          )}
+        </div>
+        <h1>{entry.title}</h1>
         {entry.summary && <p className="entry-standfirst">{entry.summary}</p>}
-        <div className="entry-meta">
-          <span>Published {new Date(entry.published_at ?? entry.created_at).toLocaleDateString()}</span>
+        <div className="entry-header-meta">
+          <span className="entry-meta-item">
+            <ClockIcon size={14} />
+            Published {date}
+          </span>
           {entry.source_url && (
-            <a href={entry.source_url} target="_blank" rel="noreferrer">
+            <a href={entry.source_url} target="_blank" rel="noreferrer" className="entry-meta-link">
+              <ExternalLinkIcon size={14} />
               Source
             </a>
           )}
+          <span className="entry-meta-locale">{entry.locale}</span>
         </div>
       </header>
 
@@ -88,15 +112,17 @@ export default function EntryPage() {
 
       {related.length > 0 && (
         <section className="related">
-          <h3 className="section-title">Related</h3>
-          <div className="entry-grid">
+          <h2 className="related-title">Related entries</h2>
+          <div className="related-grid">
             {related.map((r) => (
               <Link
                 key={r.id}
                 to={`/${vertical.slug}/${category?.slug ?? '_'}/${r.slug}`}
-                className="entry-list-item"
+                className="related-item"
               >
-                <strong>{r.title}</strong>
+                <span className="related-item-title">{r.title}</span>
+                {r.summary && <span className="related-item-summary">{r.summary}</span>}
+                <span className="related-item-arrow"><ChevronRightIcon size={15} /></span>
               </Link>
             ))}
           </div>

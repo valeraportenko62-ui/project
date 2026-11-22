@@ -20,6 +20,26 @@ export async function getVerticalBySlug(slug: string): Promise<Vertical | null> 
   return data
 }
 
+export interface PublicStats {
+  totalEntries: number
+  perVertical: { vertical_id: number; count: number }[]
+}
+
+export async function getPublicStats(): Promise<PublicStats> {
+  const { data, error } = await supabase.rpc('get_admin_stats')
+  if (error) {
+    return { totalEntries: 0, perVertical: [] }
+  }
+  const stats = data as {
+    total_entries: number
+    verticals: { vertical_id: number; entry_count: number }[]
+  }
+  return {
+    totalEntries: stats.total_entries,
+    perVertical: stats.verticals.map((v) => ({ vertical_id: v.vertical_id, count: v.entry_count })),
+  }
+}
+
 export async function listCategories(verticalId: number): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
