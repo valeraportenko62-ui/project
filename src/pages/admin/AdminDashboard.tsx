@@ -253,12 +253,13 @@ export default function AdminDashboard() {
             <thead>
               <tr>
                 <th>Top 10 Most Visited Pages</th>
+                <th>Vertical</th>
                 <th className="ta-right">Views</th>
               </tr>
             </thead>
             <tbody>
               {topPages.length === 0 && (
-                <tr><td className="admin-muted">No page views recorded yet.</td><td className="ta-right admin-num">0</td></tr>
+                <tr><td className="admin-muted">No page views recorded yet.</td><td></td><td className="ta-right admin-num">0</td></tr>
               )}
               {topPages.map((p) => (
                 <tr key={p.path}>
@@ -267,6 +268,15 @@ export default function AdminDashboard() {
                       {p.entry_title ?? p.path}
                       {p.entry_title && <span className="admin-top-page-sub">{p.path}</span>}
                     </span>
+                  </td>
+                  <td>
+                    {p.vertical_slug ? (
+                      <span className={`admin-ingestion-pill dot-badge-${p.vertical_slug}`}>
+                        {p.vertical_slug}
+                      </span>
+                    ) : (
+                      <span className="admin-muted">—</span>
+                    )}
                   </td>
                   <td className="ta-right admin-num">{formatNumber(Number(p.views))}</td>
                 </tr>

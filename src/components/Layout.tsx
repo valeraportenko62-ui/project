@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import SearchBar from './SearchBar'
@@ -10,9 +10,12 @@ export default function Layout() {
   const { verticals } = useVerticals()
   const { theme, toggle } = useTheme()
   const location = useLocation()
+  const lastTrackedPath = useRef<string | null>(null)
 
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) return
+    if (lastTrackedPath.current === location.pathname) return
+    lastTrackedPath.current = location.pathname
     supabase
       .rpc('track_page_view', { p_path: location.pathname })
       .then(() => undefined, () => undefined)

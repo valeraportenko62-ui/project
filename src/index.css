@@ -1512,6 +1512,12 @@ a:hover > .entry-card {
 /* --- Admin: traffic analytics --- */
 .admin-top-page-path { display: flex; flex-direction: column; gap: 0.1rem; font-weight: 500; }
 .admin-top-page-sub { font-family: var(--font-mono); font-size: 0.76rem; color: var(--admin-muted); font-weight: 400; }
+.dot-badge-informational { background: #0284c7; color: #fff; }
+.dot-badge-reference { background: #d97706; color: #fff; }
+.dot-badge-educational { background: #16a34a; color: #fff; }
+.dot-badge-encyclopedic { background: #64748b; color: #fff; }
+.dot-badge-catalogs { background: #ea580c; color: #fff; }
+.dot-badge-scientific { background: #2563eb; color: #fff; }
 
 @media (max-width: 800px) {
   .admin-manager-grid { grid-template-columns: 1fr; }
