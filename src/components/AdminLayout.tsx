@@ -28,6 +28,9 @@ export default function AdminLayout() {
             <NavLink to="/admin/batch" className={({ isActive }) => 'admin-nav-link' + (isActive ? ' active' : '')}>
               Batch Generator
             </NavLink>
+            <NavLink to="/admin/sites" className={({ isActive }) => 'admin-nav-link' + (isActive ? ' active' : '')}>
+              Connected Sites
+            </NavLink>
           </nav>
           <div className="admin-header-actions">
             <button

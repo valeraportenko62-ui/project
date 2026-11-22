@@ -10,6 +10,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import EntryEditor from './pages/admin/EntryEditor'
 import CategoryManager from './pages/admin/CategoryManager'
 import BatchGenerator from './pages/admin/BatchGenerator'
+import ConnectedSites from './pages/admin/ConnectedSites'
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="entries" element={<EntryEditor />} />
         <Route path="categories" element={<CategoryManager />} />
         <Route path="batch" element={<BatchGenerator />} />
+        <Route path="sites" element={<ConnectedSites />} />
       </Route>
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>

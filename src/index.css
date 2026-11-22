@@ -1519,6 +1519,23 @@ a:hover > .entry-card {
 .dot-badge-catalogs { background: #ea580c; color: #fff; }
 .dot-badge-scientific { background: #2563eb; color: #fff; }
 
+/* --- Admin: connected sites --- */
+.sites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.85rem; }
+.site-card { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; background: var(--admin-bg); border: 1px solid var(--admin-line); border-radius: var(--admin-radius-sm); transition: border-color 0.15s, box-shadow 0.15s; }
+.site-card:hover { border-color: var(--admin-primary); box-shadow: 0 2px 8px var(--admin-primary-soft); }
+.site-card-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.site-card-link { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; color: var(--admin-ink); min-width: 0; overflow-wrap: anywhere; transition: color 0.15s; }
+.site-card-link:hover { color: var(--admin-primary); }
+.site-card-meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.site-card-notes { margin: 0; font-size: 0.8rem; color: var(--admin-muted); line-height: 1.5; }
+.site-card-footer { display: flex; gap: 0.5rem; margin-top: auto; }
+.site-status-toggle { cursor: pointer; border: 1px solid transparent; transition: filter 0.15s; }
+.site-status-toggle:hover { filter: brightness(0.92); }
+[data-theme="dark"] .site-status-toggle:hover { filter: brightness(1.15); }
+.status-tag-dev { background: var(--admin-accent-soft); color: var(--admin-accent); }
+.status-tag-paused { background: var(--admin-warn-soft); color: var(--admin-warn); }
+[data-theme="dark"] .status-tag-paused { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+
 @media (max-width: 800px) {
   .admin-manager-grid { grid-template-columns: 1fr; }
   .admin-batch-grid { grid-template-columns: 1fr; }
